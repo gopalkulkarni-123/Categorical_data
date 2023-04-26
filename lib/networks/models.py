@@ -10,33 +10,19 @@ from .encoders import FeatureEncoder
 from .decoders import GlobalRNVPDecoder
 from .decoders import LocalCondRNVPDecoder
 
-def one_hot_cloud(data, num_labels, position):
-    data = data.cpu()
-    position = position.cpu()
-    encoded_tensor =  torch.zeros(position.shape[0],5,data.shape[2])
-    
-    for i in range (data.shape[0]):
-        zeros = np.zeros((max(data.shape), num_labels))
-        zeros[:,position[i]] = 1
-        encoded_data = torch.tensor(np.concatenate((zeros, data[0].T), axis=1).T)
-        encoded_tensor[i] = encoded_data
-    
-    encoded_tensor = encoded_tensor.to('cuda')
-    return encoded_tensor
+import torch
 
-def one_hot_condition(data, num_labels, position):
+def category_condition(data, num_categories, cloud_labels):
+
     data = data.cpu()
-    position = position.cpu()
-    encoded_tensor =  torch.zeros(data.shape[0],3,data.shape[1])
-    
-    for i in range (data.shape[0]):
-        zeros = np.zeros((max(data.shape), num_labels))
-        zeros[:,position[i]] = 1
-        encoded_data = torch.tensor(np.concatenate((zeros, data[0].detach().numpy().reshape(-1,1)), axis=1).T)
-        encoded_tensor[i] = encoded_data
-    
-    encoded_tensor = encoded_tensor.to('cuda')
-    return encoded_tensor
+    zeros = torch.zeros(data.shape[0], num_categories)
+    zeros[torch.arange(data.shape[0]), cloud_labels.long()] = 1
+    data[:, -num_categories:] = zeros
+    data = data.to('cuda:0')
+
+    return data
+
+
 
 class Local_Cond_RNVP_MC_Global_RNVP_VAE(nn.Module):
     '''
@@ -224,20 +210,16 @@ class Local_Cond_RNVP_MC_Global_RNVP_VAE(nn.Module):
 
         if self.mode == 'training':
             #train decoder flow
-            p_input_labeled = one_hot_cloud(p_input, 2, cloud_labels)
-            g_sample_labeled = one_hot_condition(g_sample, 2, cloud_labels)
-            buf = pc_decoder(p_input_labeled, g_sample_labeled, mode='inverse')
+            g_sample_labeled = category_condition(g_sample, 2, cloud_labels)
+            buf = pc_decoder(p_input, g_sample_labeled, mode='inverse')
             output['p_prior_samples'] = buf[0] + [p_input]
         else:
             # for evaluation
             output['p_prior_samples'] = [self.reparameterize(output['p_prior_mus'][0], output['p_prior_logvars'][0])]
-            #cloud_labels = torch.tensor([1, 1, 1, 1, 1])
-            output['p_prior_samples'] = one_hot_cloud(output['p_prior_samples'][0], 2, cloud_labels)
-            output['p_prior_samples'] = [output['p_prior_samples']]
-            g_sample_labeled = one_hot_condition(g_sample, 2, cloud_labels)
+            g_sample_labeled = category_condition(g_sample, 2, cloud_labels)
             if self.mode == 'generating':
-                cloud_labels = torch.tensor([1])
-                g_sample_labeled = one_hot_condition(g_sample, 2, cloud_labels)
+                #cloud_labels = torch.tensor([1])
+                g_sample_labeled = category_condition(g_sample, 2, cloud_labels)
             buf = pc_decoder(output['p_prior_samples'][0], g_sample_labeled, mode='direct')
             output['p_prior_samples'] += buf[0]
         output['p_prior_mus'] += buf[1]
@@ -292,13 +274,8 @@ class Local_Cond_RNVP_MC_Global_RNVP_VAE(nn.Module):
         g_sample = output_encoder['g_posterior_samples'] if self.mode == 'training' or self.mode == 'autoencoding' \
             else output_encoder['g_prior_samples'][-1]
         if labeled_samples:
-            #p_input_labeled = one_hot_cloud(p_input, 2, cloud_labels)
-            #g_sample_labeled = one_hot_condition(g_sample, 2, cloud_labels)
             samples, labels, mixture_weights_logits = self.decode(p_input, g_sample, cloud_labels, sampled_cloud_size, labeled_samples, warmup)
             return output_encoder, samples, labels, mixture_weights_logits
         else:
-            #print("decoding")
-            #p_input_labeled = one_hot_cloud(p_input, 2, cloud_labels)
-            #g_sample_labeled = one_hot_condition(g_sample, 2, cloud_labels)
             output_decoder, mixture_weights_logits = self.decode(p_input, g_sample, cloud_labels, sampled_cloud_size, labeled_samples, warmup)
             return output_encoder, output_decoder, mixture_weights_logits

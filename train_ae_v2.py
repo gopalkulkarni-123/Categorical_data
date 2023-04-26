@@ -24,8 +24,8 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 def define_options_parser():
     parser = argparse.ArgumentParser(description='Model training script. Provide a suitable config.')
     parser.add_argument('--config', type=str, default='./configs/config_generative_modeling_airplane.yaml', help='Path to config file in YAML format.')
-    parser.add_argument('--modelname', type=str, default = 'airplane_gen_model_v5', help='Model name for saving checkpoints.')
-    parser.add_argument('--n_epochs', type=int, default = 250, help='Total number of training epochs.')
+    parser.add_argument('--modelname', type=str, default = 'airplane_gen_model_v7', help='Model name for saving checkpoints.')
+    parser.add_argument('--n_epochs', type=int, default = 1000, help='Total number of training epochs.')
     parser.add_argument('--lr', type=float,default=0.000064, help='Learining rate value.')
     parser.add_argument('--cloud_random_rotate', action='store_true',
                         help='Flag signaling if we perform random 3D rotation during training.')

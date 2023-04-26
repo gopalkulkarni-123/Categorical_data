@@ -19,7 +19,7 @@ from data_extract_labelled import dataset_airplanes
 def define_options_parser():
     parser = argparse.ArgumentParser(description='Model training script. Provide a suitable config.')
     parser.add_argument('--experiment_path', type=str, default = r"D:\Masters\Univerities\TU Dresden\Post_Admit\Studies\4th Sem\RP\Categorical_data\results\airplane_gen_model", help='Path to experiment.')
-    parser.add_argument('--modelname', type=str, default = 'airplane_gen_model_v5', help='Model name (without ending).')
+    parser.add_argument('--modelname', type=str, default = 'airplane_gen_model_v7', help='Model name (without ending).')
     parser.add_argument('--part', default = 'test', help='Part of dataset (train / val / test).')
     parser.add_argument('--cloud_size', default = 2048, type=int, help='Number of input points.')
     parser.add_argument('--sampled_cloud_size', default = 2048, type=int, help='Number of sampled points.')

@@ -35,7 +35,6 @@ def train(iterator, model, loss_func, optimizer, scheduler, epoch, iter, warmup,
         data_time.update(time.time() - end)
         scheduler(optimizer, epoch, iter + i)
 
-        print("iteration number is",i)
         g_clouds = batch['cloud'].cuda(non_blocking=True)
         p_clouds = batch['eval_cloud'].cuda(non_blocking=True)
         cloud_labels = batch['label'].cuda(non_blocking=True)
@@ -83,7 +82,7 @@ def train(iterator, model, loss_func, optimizer, scheduler, epoch, iter, warmup,
                 'model_state': sd,
                 'optimizer_state': optimizer.state_dict()
             }, model_name)
-#for loop ends
+
 
     # write to tensorboard
     if kwargs['logging']:

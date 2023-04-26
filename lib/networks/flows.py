@@ -31,14 +31,14 @@ class CondRealNVPFlow3D(nn.Module):
         ]))
 
         self.T_mu_0_cond_w = nn.Sequential(OrderedDict([
-            ('mu_sd1_film_w0', nn.Linear(3*self.g_n_features, self.f_n_features, bias=False)),
+            ('mu_sd1_film_w0', nn.Linear(self.g_n_features, self.f_n_features, bias=False)),
             ('mu_sd1_film_w0_bn', nn.BatchNorm1d(self.f_n_features)),
             ('mu_sd1_film_w0_swish', Swish()),
             ('mu_sd1_film_w1', nn.Linear(self.f_n_features, self.f_n_features, bias=True))
         ]))
 
         self.T_mu_0_cond_b = nn.Sequential(OrderedDict([
-            ('mu_sd1_film_b0', nn.Linear(3*self.g_n_features, self.f_n_features, bias=False)),
+            ('mu_sd1_film_b0', nn.Linear(self.g_n_features, self.f_n_features, bias=False)),
             ('mu_sd1_film_b0_bn', nn.BatchNorm1d(self.f_n_features)),
             ('mu_sd1_film_b0_swish', Swish()),
             ('mu_sd1_film_b1', nn.Linear(self.f_n_features, self.f_n_features, bias=True))
@@ -66,14 +66,14 @@ class CondRealNVPFlow3D(nn.Module):
         ]))
 
         self.T_logvar_0_cond_w = nn.Sequential(OrderedDict([
-            ('logvar_sd1_film_w0', nn.Linear(3*self.g_n_features, self.f_n_features, bias=False)),
+            ('logvar_sd1_film_w0', nn.Linear(self.g_n_features, self.f_n_features, bias=False)),
             ('logvar_sd1_film_w0_bn', nn.BatchNorm1d(self.f_n_features)),
             ('logvar_sd1_film_w0_swish', Swish()),
             ('logvar_sd1_film_w1', nn.Linear(self.f_n_features, self.f_n_features, bias=True))
         ]))
 
         self.T_logvar_0_cond_b = nn.Sequential(OrderedDict([
-            ('logvar_sd1_film_b0', nn.Linear(3*self.g_n_features, self.f_n_features, bias=False)),
+            ('logvar_sd1_film_b0', nn.Linear(self.g_n_features, self.f_n_features, bias=False)),
             ('logvar_sd1_film_b0_bn', nn.BatchNorm1d(self.f_n_features)),
             ('logvar_sd1_film_b0_swish', Swish()),
             ('logvar_sd1_film_b1', nn.Linear(self.f_n_features, self.f_n_features, bias=True))
@@ -96,8 +96,6 @@ class CondRealNVPFlow3D(nn.Module):
         logvar = torch.zeros_like(p)
         mu = torch.zeros_like(p)
 
-        g = g.view(g.size(0), -1)
-        #p = p.view(p.size(0), -1)
 
         logvar[:, self.warp_inds, :] = nn.functional.softsign(self.T_logvar_1(
             torch.add(self.eps, torch.exp(self.T_logvar_0_cond_w(g).unsqueeze(2))) *

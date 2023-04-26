@@ -50,8 +50,8 @@ def data():
         fin['test_faces_bounds'].read_direct(faces_bounds)
 
         sample = []
-        airplane_indices = np.arange(0,10)  
-        chair_indices = np.arange(3725, 3735, 1)
+        airplane_indices = np.arange(0,2)  
+        chair_indices = np.arange(3725, 3727)
         iterator = np.concatenate((airplane_indices, chair_indices))
 
         for i in iterator:
@@ -69,5 +69,3 @@ def data():
     return sample
 
 dataset_airplanes = data()
-#plot(dataset_airplanes, 'airplanes')
-#print("end")

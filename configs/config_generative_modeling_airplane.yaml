@@ -1,5 +1,5 @@
-batch_size: 5    # 1 for evaluation, 64 for training
-beta1: 0.9
+batch_size: 4    # 1 for evaluation, 64 for training
+beta1: 0.9 # Adam optimiser
 chosen_label: 0
 cloud_center: false
 cloud_noise: false
@@ -18,10 +18,11 @@ cloud_translate_shift:
 cycle_length: 400
 deterministic: false
 distributed: true
-g_latent_space_size: 128
-g_posterior_n_layers: 1
-g_prior_n_features: 128
-g_prior_n_flows: 7
+g_latent_space_size: 128 #16, 32, 64, 128, 256
+g_posterior_n_layers: 1 # 3, 5
+g_prior_n_features: 128 # 64, 128, 512
+g_prior_n_flows: 7 # 4, 7, 12
+max_lr: 0.000256 #1e-3, 1e-4, 1e-5
 gent_weight: 1.0
 gnll_weight: 1.0
 jobid: '1'
@@ -30,7 +31,6 @@ logging_img: true
 logging_img_frequency: 1
 logging_path: ./results/airplane_gen_model
 max_beta2: 0.99
-max_lr: 0.000256
 meshes_fname: ShapeNetCore55v2_meshes_resampled.h5
 min_beta2: 0.99
 min_lr: 0.000256
@@ -38,17 +38,17 @@ model_name: generative_model_airplane_pretrained.pkl
 n_components: 4
 n_epochs: 800
 num_workers: 1
-p_decoder_base_type: free
-p_decoder_base_var: -3.9551
-p_decoder_n_features: 64
-p_decoder_n_flows: 21
-p_latent_space_size: 3
+p_decoder_base_type: fixed
+p_decoder_base_var: -3.9551 #Decoder variance 
+p_decoder_n_features: 64 #
+p_decoder_n_flows: 21 #
+p_latent_space_size: 3 #?
 p_prior_n_layers: 1
 params_reduce_mode: depth_and_feature
 path2data: D:\Masters\Univerities\TU Dresden\Post_Admit\Studies\4th Sem\RP\data
 path2save: ./results
-pc_enc_init_n_channels: 3
-pc_enc_init_n_features: 64
+pc_enc_init_n_channels: 3 # fixed
+pc_enc_init_n_features: 64 #
 pc_enc_n_features:
 - 128
 - 256

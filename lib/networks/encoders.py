@@ -87,5 +87,4 @@ class WeightsEncoder(FeatureEncoder):
     def forward(self, input):
         mus = super().forward(input)
         weights = nn.functional.log_softmax(mus, dim=1)
-        #print("Weights from WeightEncoder is", weights)
         return weights

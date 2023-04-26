@@ -3,20 +3,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-def one_hot_cloud(data, num_labels, position):
-    data = data.cpu()
-    position = position.cpu()
-    encoded_tensor =  torch.zeros(5,5,2048)
-    
-    for i in range (data.shape[0]):
-        zeros = torch.zeros((max(data.shape), num_labels))
-        zeros[:,position[i]] = 1
-        encoded_data = torch.cat((zeros, data[0].T), dim=1).T
-        encoded_tensor[i] = encoded_data
-    
-    encoded_tensor = encoded_tensor.to('cuda')
-    return encoded_tensor
-
 class PointFlowNLL(nn.Module):
     def __init__(self):
         super(PointFlowNLL, self).__init__()
@@ -124,7 +110,6 @@ class FlowMixtureNLL(nn.Module):
                 cur_mus = output_decoder[j]['p_prior_mus'][0][i, :, :]
                 cur_logvars = output_decoder[j]['p_prior_logvars'][0][i, :, :]
                 # compute sum of log determinant of each shape
-                #cur_log_determinant = sum(output_decoder[j]['p_prior_logvars'])[i, :, :]
                 cur_log_determinant = sum(output_decoder[j]['p_prior_logvars'])[i, :, :]
                 cur_samples = output_decoder[j]['p_prior_samples'][0][i, :, :]
 
@@ -180,10 +165,6 @@ class Flow_Mixture_Loss(nn.Module):
         Returns:
             sum of loss, decoder flow loss, gnll and gent used for KL divergence
         '''
-        for i in range (len(output_decoder)):
-            output_decoder[i]['p_prior_logvars'][0] = one_hot_cloud(output_decoder[i]['p_prior_logvars'][0], 2, cloud_labels)
-            output_decoder[i]['p_prior_mus'][0] = one_hot_cloud(output_decoder[i]['p_prior_mus'][0], 2, cloud_labels)
-            #output_decoder[0]['p_prior_samples'][0] = one_hot_cloud(output_decoder[0]['p_prior_samples'][0], 2, cloud_labels)
 
         pnll = self.PNLL(output_decoder, mixture_weights_logits)
         gnll = self.GNLL(output_prior['g_prior_samples'], output_prior['g_prior_mus'], output_prior['g_prior_logvars'])
